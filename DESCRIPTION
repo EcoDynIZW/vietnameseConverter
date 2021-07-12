@@ -1,0 +1,16 @@
+Package: vietnamese2utf
+Type: Package
+Title: Convert Legacy Vietnamese Encodings To UTF-8
+Version: 0.2.0
+Authors@R: c(
+        person("Juergen", "Niedballa", email = "niedballa@izw-berlin.de", role = c("aut", "cre"),
+                comment = c(ORCID = "0000-0002-9187-2116")),
+        person("An The Truong", "Nguyen", role = "ctb")
+        )
+Maintainer: Juergen Niedballa <niedballa@izw-berlin.de>
+Description: Conversion of characters in various legacy Vietnamese text encodings to their correct Unicode characters in UTF-8 encoding. These Vietnamese encodings (TCVN3, VNI, VPS, VISCII) are not natively supported in R and lead to printing of wrong characters (Mojibake). This package fixes that problem and provides output with or without diacritics. 
+License: GPL (>= 2)
+Encoding: UTF-8
+Imports: gsubfn, utf8
+Depends: R (>= 2.10)
+RoxygenNote: 7.1.1
