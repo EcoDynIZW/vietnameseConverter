@@ -2,3 +2,5 @@
 
 export(decodeVN)
 export(loadEncodingTableVN)
+importFrom(gsubfn,gsubfn)
+importFrom(utf8,as_utf8)
