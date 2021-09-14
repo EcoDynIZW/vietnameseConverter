@@ -1,0 +1,271 @@
+---
+title: "Overview of the vietnamese2utf package"
+author: "Juergen Niedballa (<niedballa@izw-berlin.de>)"
+date: '`r Sys.Date()`'
+# output: rmarkdown::html_vignette
+output:
+  pdf_document:
+    #latex_engine: lualatex
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: no
+    toc_depth: 2
+    # df_print: kable
+vignette: >
+  %\VignetteIndexEntry{Overview of the vietnamese2utf package} 
+  \VignetteEncoding{UTF-8}
+  
+  %\VignetteEngine{knitr::rmarkdown} 
+---
+
+
+```{r include=FALSE}
+library(DT)
+```
+
+
+# Introduction
+
+
+
+This package helps you read and use data from Vietnamese sources in R. Such data often use Vietnamese legacy character encodings such as TCVN (Vietnam Standards / Tieu chuan Viet Nam) and are still in use today. Such data are not read correctly in R (which doesn't seem to support these Vietnamese encodings). To correct this problem and make such data available in R, this package converts data in legacy Vietnamese encodings to the correct Unicode characters. The main function is `decodeVN`.
+
+
+The package currently supports conversion between the following encodings:
+
+* Unicode (UTF-8)
+* TCVN3
+* VPS
+* VISCII
+
+It converts between any of these encodings, but most commonly one would want to convert legacy encodings to their correct Unicode characters. The 
+
+package supports character vectors and data frames (the character columns thereof). 
+
+## Background
+
+For those interested here is some background on character sets and encodings. 
+
+A *character set* is a collection of characters used in languages. 
+
+A *coded character set*  assigns a unique number to each character in a character set. The unique values in a coded character sets are known as *code points* (e.g. \"U+0041 \" corresponcs to capital letter A in Unicode).
+
+*Unicode* (also known as Universal Coded Character Set) is a modern coded character set that contains over 100,000 characters from most writing systems of the world.
+
+*Character encodings* are the method by which a coded character set is converted to binary. *UTF-8* is a commonly used encoding for Unicode characters (UTF stands for Unicode Transformation Format). 
+
+Historically, the Vietnamese language could not be represented well using 128 characters in the ASCII standard. Hence, several character encodings were developed for the Vietnamese language with the aim of representing Vietnamese characters while fitting into 1 byte (=8-bit, allowing up to 255 characters). To achieve that, some some code points were reassigned and differ from today's standards like Unicode. Thus, when reading data that use those Vietnamese encodings on systems that assume e.g. UTF-8 encoding (Unicode), we get gibberish text (also known as mojibake). 
+
+Let's take a Vietnamese string that is supposed to be: 
+
+\"Quảng Trị, An Đôn, Thừa Thiên Huế\"
+
+If it is encoded using a legacy Vietnamese encoding, it might displayed as something like:
+
+\"Qu¶ng TrÞ, An §«n, Thõa Thiªn HuÕ\"
+
+
+\"Quäng TrÎ, An Đôn, ThØa Thiên Hu‰\"
+
+
+\"Quäng Tr¸, An Đôn, Th×a Thiên Huª"\
+
+when it is read in R or other software (depending on the specific encoding of the data). 
+
+These days, almost all Vietnamese computer systems use Unicode and there is no need to use the legacy encodings anymore. Nevertheless, historic data may still be encoded in these legacy encodings and require conversion. 
+
+This package fixes this problem by converting the garbled strings back to their original (with or without the diacritcs). When saving the output in R, it will use standard encodings and data will read correctly in the future. 
+
+You can check the output from this package using e.g. this website \url{http://www.enderminh.com/minh/vnconversions.aspx}. 
+
+If you want to know more about the technicalities of encodings and character sets, see \url{https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/}.
+
+
+
+
+## Installation
+
+The package can be installed from CRAN: 
+
+```{r eval = FALSE}
+install.packages("vietnamese2utf")
+```
+
+and loaded into R via:
+
+```{r eval = TRUE}
+library(vietnamese2utf)
+```
+
+# Example applications
+
+## Vectors
+
+Let's consider a simple vector with garbled characters: 
+
+```{r}
+string_garbled <- c("Qu¶ng TrÞ", "An §«n", "Thõa Thiªn HuÕ")
+string_garbled
+```
+
+It can be fixed using the `decodeVN` function:
+
+```{r}
+decodeVN(string_garbled)
+tmp <- decodeVN(string_garbled)
+tmp
+```
+
+
+```{r}
+test <- decodeVN(string_garbled)
+# test
+# print(test)
+# summary(test)
+# utf8::utf8_print(test)
+test2 <- knitr::asis_output(test)
+test2
+knitr::asis_output(decodeVN(string_garbled))
+```
+
+
+By default, the output contains character with diacritics (accents). We can also get output without the diacritics (plain ASCII letters) by setting argument \"diacritics\ = FALSE":
+
+```{r}
+decodeVN(string_garbled, diacritics = FALSE)
+```
+
+By default, decodeVN() attempts to convert TCVN3 to Unicode characte (as shown in this example)r. If your data are in different encodings, set argument `from`.
+
+For example, a string in VPS encoding is converted via:
+
+```{r}
+string_garbled_vps <- c("Quäng TrÎ",  "An ñôn", "ThØa Thiên Hu‰")
+decodeVN(string_garbled_vps, from = "VPS")
+```
+
+
+There is also an argument `to`, which by default is set to `to = \"Unicode\"`. If you want output that simulates data encoded in one of the supported Vietnamese encodings, set argument `to`, e.g.
+
+```{r}
+string_tcvn_to_vps <- decodeVN(x = string_garbled, from = "TCVN3", to = "VPS")
+string_tcvn_to_vps
+```
+This string is now garbled the VPS-way. It can still be converted to Unicode:
+```{r}
+decodeVN(string_tcvn_to_vps, from = "VPS")
+```
+
+
+## Data frames
+
+We can also convert entire data frames at once. It will only convert character columns and leave the other columns untouched. If you have factor columns, convert them to character first. 
+
+The package contains a list containing several data frames which simulate the problems with different encodings. These data frames show what the problems with different encodings look like when the data are loaded in an environment that assumes UTF-8 / native encoding). 
+The data frame is based on the table of provinces in \url{https://en.wikipedia.org/wiki/Provinces_of_Vietnam}.
+
+Loading the list of sample data.
+```{r}
+data(vn_samples)
+```
+
+vn_samples is a list of four data frames. See `?vn_samples` for details. 
+
+
+The first item $Unicode shows the correct characters.
+
+```{r}
+head(vn_samples$Unicode)
+```
+Note: when printing a data frame the Unicode characters are not displayed properly, which is a limitation of the print method for data frames in R. It shows correctly when printing the values inside the columns, meaning the data are correct:
+
+```{r}
+head(vn_samples$Unicode$Province_city)
+```
+It also shows correctly when using `View` (not shown here, works in interactive sessions):
+
+```{r eval = FALSE}
+View(vn_samples$Unicode)
+```
+
+It is also shown correctly when using DT::datatable:
+
+```{r}
+DT::datatable(vn_samples$Unicode)
+```
+
+
+
+The other entries in `vn_samples` show garbled text. Here's the example in TCVN3 encoding:
+
+```{r eval=FALSE, include=FALSE}
+DT::datatable(vn_samples$TCVN3)
+```
+
+```{r}
+DT::datatable(vn_samples$TCVN3)
+```
+
+One can easily convert the entire data frame:
+
+```{r}
+# take data frames out of list for easier readability
+df_unicode <- vn_samples$Unicode
+df_tcvn3 <- vn_samples$TCVN3
+
+df_tcvn3_converted <- decodeVN(df_tcvn3)
+
+DT::datatable(df_tcvn3_converted)
+```
+
+
+After conversion it is identical to the original with Unicode characters
+```{r}
+all.equal(df_unicode, df_tcvn3_converted)
+```
+
+
+Again, we can chose to return characters without accents:
+```{r}
+df_tcvn3_converted2 <- decodeVN(df_tcvn3, diacritics = FALSE)
+DT::datatable(df_tcvn3_converted2)
+```
+
+
+We can also use the `from` and `to` arguments for other conversions between other encodings.
+
+For example, to convert VISCII-encoded data to Unicode, use: 
+
+```{r}
+df_viscii <- vn_samples$VISCII
+DT::datatable(decodeVN(df_viscii, from = "VISCII"))
+```
+
+The same thing without diacritics:
+
+```{r}
+DT::datatable(decodeVN(df_viscii, from = "VISCII", diacritics = FALSE))
+```
+
+
+
+## Spatial data
+
+If you are working with spatial data, it is easiest to temporarily convert them to non-spatial data (a regular data frame), run decodeVN(), and make the object spatial again. 
+
+For `sf` objects, the workflow can be as follows (data are not included, code is for illustration only)
+
+```{r eval = FALSE}
+library(sf)
+sf_object <- st_read(...)                      # load sf data set
+sf_object_geometry <- st_geometry(sf_object)   # temporarily store geometry column
+sf_drop_geometry(sf_object)                    # remove geometry column
+sf_object_decoded <- decodeVN(sf_object)       # run decodeVN
+st_set_geometry(decodeVN, sf_object_geometry)  # assign geometry column to decoded data frame (to make it spatial again)
+```
+
