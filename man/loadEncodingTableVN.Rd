@@ -4,7 +4,10 @@
 \alias{loadEncodingTableVN}
 \title{Load conversion table for Vietnamese characters}
 \usage{
-loadEncodingTableVN()
+loadEncodingTableVN(version)
+}
+\arguments{
+\item{version}{Version of this table (1 or 2) - 2 is currentlty being used}
 }
 \value{
 data.frame
