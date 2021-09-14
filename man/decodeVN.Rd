@@ -6,17 +6,17 @@
 \usage{
 decodeVN(
   x,
-  input = c("TCVN3", "VNI", "VPS", "VISCII", "Unicode"),
-  output = "Unicode",
+  from = c("TCVN3", "VISCII", "VPS", "Unicode"),
+  to = c("Unicode", "TCVN3", "VISCII", "VPS"),
   diacritics = TRUE
 )
 }
 \arguments{
 \item{x}{data.frame or character vector}
 
-\item{input}{Text encoding of input x}
+\item{from}{Text encoding of input x}
 
-\item{output}{Text encoding of output}
+\item{to}{Text encoding of output}
 
 \item{diacritics}{logical. Preserve diacritics (TRUE) or not (FALSE)}
 }
@@ -27,14 +27,15 @@ character string or data frame (depending on x)
 Convert characters from legacy Vietnamese encodings to UTF-8 encoding
 }
 \details{
-Many characters in legacy Vietnamese encodings (e.g. TCVN3, VNI, VPS, VISCII)
+Many characters in legacy Vietnamese encodings (e.g. TCVN3, VPS, VISCII)
 are not read correctly in R, particularly those with diacritics (accents). The particular
 encodings don't seem to be supported by R, at least on many locales. Reading them as if they have UTF-8
 encoding results in wrong characters being printed and garbled text (Mojibake).
 
 This functions converts character vectors to from various Vietnamese legacy encodings to readable
 Unicode characters in UTF-8 encoding. By default the function attempts the conversion from TCVN3 to UTF-8
-while preserving the diacritics, but also supports other Vietnamese encodings  (TCVN3, VNI, VPS, VISCII - via argument \code{input})
+while preserving the diacritics, but also supports other Vietnamese encodings  (TCVN3, VPS, VISCII - via argument \code{from}).
+Currently VNI and VNU are not supported.
 
  \code{diacritics = TRUE} will return characters with their diacritics. With \code{diacritics = FALSE},
  the output will be ASCII letters without diacritics. Upper/lower case will be preserved regardless.

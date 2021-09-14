@@ -2,20 +2,21 @@
 #' Convert characters from legacy Vietnamese encodings to UTF-8 encoding
 #'
 #' @param x data.frame or character vector
-#' @param input Text encoding of input x
-#' @param output Text encoding of output
+#' @param from Text encoding of input x
+#' @param to Text encoding of output
 #' @param diacritics logical. Preserve diacritics (TRUE) or not (FALSE)
 # @param ... Additional arguments to gsubfn()
 #'
 #' @details
-#' Many characters in legacy Vietnamese encodings (e.g. TCVN3, VNI, VPS, VISCII)
+#' Many characters in legacy Vietnamese encodings (e.g. TCVN3, VPS, VISCII)
 #' are not read correctly in R, particularly those with diacritics (accents). The particular
 #' encodings don't seem to be supported by R, at least on many locales. Reading them as if they have UTF-8
 #' encoding results in wrong characters being printed and garbled text (Mojibake).
 #'
 #' This functions converts character vectors to from various Vietnamese legacy encodings to readable
 #' Unicode characters in UTF-8 encoding. By default the function attempts the conversion from TCVN3 to UTF-8
-#' while preserving the diacritics, but also supports other Vietnamese encodings  (TCVN3, VNI, VPS, VISCII - via argument \code{input})
+#' while preserving the diacritics, but also supports other Vietnamese encodings  (TCVN3, VPS, VISCII - via argument \code{from}).
+#' Currently VNI and VNU are not supported.
 #'
 #'  \code{diacritics = TRUE} will return characters with their diacritics. With \code{diacritics = FALSE},
 #'  the output will be ASCII letters without diacritics. Upper/lower case will be preserved regardless.
@@ -30,6 +31,8 @@
 #' @return character string or data frame (depending on x)
 
 #' @export
+#' @importFrom utf8 as_utf8
+#' @importFrom gsubfn gsubfn
 #'
 #'
 #' @examples
@@ -60,55 +63,74 @@
 #'    decodeVN(df, diacritics = FALSE)
 #'
 decodeVN <- function(x,
-                     input = c("TCVN3", "VNI", "VPS", "VISCII", "Unicode"),
-                     output = "Unicode", # c("Unicode", "TCVN3", "VNI", "VPS", "VISCII"),
-                     diacritics = TRUE) {
+                     from = c("TCVN3", "VISCII", "VPS", "Unicode"),     #  "VNI",  "VNU",
+                     to =  c("Unicode", "TCVN3", "VISCII", "VPS"),   # "VNI"
+                     diacritics = TRUE
+                     ) {
 
+
+  if(inherits(x, "data.frame")) x <- as.data.frame(x)    # for tibbles etc
   if(!class(x) %in% c("data.frame", "character")) stop("x must be a character vector or data.frame")
-  enc_table <- loadEncodingTableVN()
+  enc_table <- loadEncodingTableVN(version = 2)
 
-  input <- match.arg(input)
-  output <- match.arg(output)
+  from <- match.arg(from, choices = c("TCVN3", "VISCII", "VPS", "Unicode"))
+  to <- match.arg(to, choices = c("Unicode", "TCVN3", "VISCII", "VPS"))
 
-  if(isFALSE(diacritics) & output != "Unicode") stop("diacritics can only be FALSE when output = 'Unicode'")
+  if(isFALSE(diacritics) & to != "Unicode") stop("diacritics can only be FALSE when 'to' != 'Unicode'")
 
+  # set enginge for gsubfn
+  perl <- TRUE     # the default sometimes led to unexpected results
 
   if(diacritics) {
-    tmp <- as.list(enc_table[,output])
+    tmp <- as.list(enc_table[,to])
   } else {
-    tmp <- as.list(enc_table$ascii)
+    tmp <- as.list(enc_table$ASCII)
   }
-  names(tmp) <- enc_table[, input]
+  names(tmp) <- enc_table[, from]
 
-  #names(tmp) <- sapply(enc_table[, input], FUN = function(x) as.character(Unicode::as.u_char(utf8ToInt(x))))
+  #tmp_split <- split(tmp, nchar(names(tmp)))
+
+
+  #tmp <- tmp[which(tmp != names(tmp))]
+
+  #names(tmp) <- sapply(enc_table[, from], FUN = function(x) as.character(Unicode::as.u_char(utf8ToInt(x))))
   #names(tmp) <- gsub("U+", "\u", names(tmp) )
-  #paste0("[\u", as.hexmode(sapply(enc_table[, input], utf8ToInt)), "]")
+  #paste0("[\u", as.hexmode(sapply(enc_table[, from], utf8ToInt)), "]")
 
   if(is.data.frame(x)) {
     char_cols <- which(sapply(x, typeof) %in% "character")
 
     if(length(char_cols) == 0) stop("No character columns in x")
+    out <- x
     for(i in char_cols){
-      x[,i] <- gsubfn::gsubfn(".", replacement = tmp, x = x[,i])
+      out[,i] <- as_utf8(out[,i])
+      out[,i] <- gsubfn(".", replacement = tmp, x = out[,i], perl = perl)
+      #out[,i] <- as_utf8(out[,i])
     }
-
-    return(x)
   }
 
   if(is.character(x)) {
 
+    x <- as_utf8(x)
 
-    out <- gsubfn::gsubfn(".", replacement = tmp, x = x, fixed = TRUE)    # add ...
 
-
-    # out <- x
-    # for(i in 1:length(tmp)){
-    #   out <- gsub(pattern =  names(tmp)[i], replacement = tmp[[i]], x = x)
+    # if(from == "VNI"){     # doesn't yet work for all characters
+    #   x_tmp <- x
+    #   for(i in 1:length(tmp))
+    #     x_tmp <- gsubfn(pattern = names(tmp)[i], replacement = tmp[[i]], x = x_tmp, perl = T)
+    # } else {
+      out <- gsubfn(".", replacement = tmp, x = x, perl = T)
     # }
-    # gsub(pattern =  "[\u1EA3]", replacement = tmp[[48]], x = x)   # why is this correct, above not??
-    # # seems like gsubfn doesn't recognize the special character patterns correctly...
 
 
-    return(out)
+    # if(length(tmp_split) == 2) {
+    #   out <- gsubfn::gsubfn(".*", replacement = tmp_split[[2]], x = x, fixed = F)
+    # }
+    # out <- as_utf8(out)
+  #  cbind(x, out)[out != x,]
+    #out <- gsubfn::gsubfn(".", replacement = tmp_split[[2]], x = out, fixed = F)
+
   }
+
+  return(out)
 }
