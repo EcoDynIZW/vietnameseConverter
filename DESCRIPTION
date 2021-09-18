@@ -1,4 +1,4 @@
-Package: vietnamese2utf
+Package: vietnameseConverter
 Type: Package
 Title: Convert Legacy Vietnamese Encodings To UTF-8
 Version: 0.3.0
