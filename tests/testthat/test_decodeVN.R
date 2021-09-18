@@ -1,5 +1,5 @@
 context("decodeVN")
-library(vietnamese2utf)
+library(vietnameseConverter)
 
 data("vn_samples")
 

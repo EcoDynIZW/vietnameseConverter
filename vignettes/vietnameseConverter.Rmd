@@ -1,5 +1,5 @@
 ---
-title: "Overview of the vietnamese2utf package"
+title: "Overview of the vietnameseConverter package"
 author: "Juergen Niedballa (<niedballa@izw-berlin.de>)"
 date: '`r Sys.Date()`'
 # output: rmarkdown::html_vignette
@@ -10,14 +10,13 @@ output:
       collapsed: no
       smooth_scroll: no
     toc_depth: 2
-    # df_print: kable
-  pdf_document:
-    #latex_engine: lualatex
-    latex_engine: xelatex
-    toc: yes
-    toc_depth: '2'
+  # pdf_document:
+  #   #latex_engine: lualatex
+  #   latex_engine: xelatex
+  #   toc: yes
+  #   toc_depth: '2'
 vignette: >
-  %\VignetteIndexEntry{Overview of the vietnamese2utf package} 
+  %\VignetteIndexEntry{Overview of the vietnameseConverter package} 
   \VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown} 
 ---
@@ -90,13 +89,13 @@ If you want to know more about the technicalities of encodings and character set
 The package can be installed from CRAN: 
 
 ```{r eval = FALSE}
-install.packages("vietnamese2utf")
+install.packages("vietnameseConverter")
 ```
 
 and loaded into R via:
 
 ```{r eval = TRUE}
-library(vietnamese2utf)
+library(vietnameseConverter)
 ```
 
 # Example applications
@@ -184,9 +183,12 @@ head(vn_samples$Unicode)
 
 Note: when printing a data frame in the R colsole, the Unicode characters are not displayed properly, which is a limitation of the print method for data frames in R (it's the same issue as mentioned in the disclaimer above). The characters are correct though and show correctly when printing the columns as vectors:
 
-```{r include=FALSE}
+```{r}
 head(vn_samples$Unicode$Province_city)
 ```
+
+Which again is not formatted nicely in the vignette (but would be formatted correctly in your console). The string is: 
+
     ## [1] "Bắc Giang" "Bắc Kạn"   "Cao Bằng"  "Hà Giang"  "Lạng Sơn"  "Phú Thọ"  
 
 It also shows correctly when using `View` (not shown here, it works in interactive sessions):
@@ -220,8 +222,10 @@ One can easily convert the entire data frame:
 df_unicode <- vn_samples$Unicode
 df_tcvn3 <- vn_samples$TCVN3
 
+# conversion from TCVN3 to Unicode (default)
 df_tcvn3_converted <- decodeVN(df_tcvn3)
 
+# print output
 DT::datatable(df_tcvn3_converted)
 ```
 
@@ -232,14 +236,15 @@ all.equal(df_unicode, df_tcvn3_converted)
 ```
 
 
-Again, we can chose to return characters without accents:
+Again, we can choose to return characters without accents by setting `diacritics = FALSE`:
+
 ```{r}
 df_tcvn3_converted2 <- decodeVN(df_tcvn3, diacritics = FALSE)
 DT::datatable(df_tcvn3_converted2)
 ```
 
 
-We can also use the `from` and `to` arguments for other conversions between other encodings.
+We can also use the `from` and `to` arguments for conversions between other encodings.
 
 For example, to convert VISCII-encoded data to Unicode, use: 
 
