@@ -4,11 +4,6 @@ author: "Juergen Niedballa (<niedballa@izw-berlin.de>)"
 date: '`r Sys.Date()`'
 # output: rmarkdown::html_vignette
 output:
-  pdf_document:
-    #latex_engine: lualatex
-    latex_engine: xelatex
-    toc: yes
-    toc_depth: '2'
   html_document:
     toc: yes
     toc_float:
@@ -16,10 +11,14 @@ output:
       smooth_scroll: no
     toc_depth: 2
     # df_print: kable
+  pdf_document:
+    #latex_engine: lualatex
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: '2'
 vignette: >
   %\VignetteIndexEntry{Overview of the vietnamese2utf package} 
   \VignetteEncoding{UTF-8}
-  
   %\VignetteEngine{knitr::rmarkdown} 
 ---
 
@@ -30,8 +29,6 @@ library(DT)
 
 
 # Introduction
-
-
 
 This package helps you read and use data from Vietnamese sources in R. Such data often use Vietnamese legacy character encodings such as TCVN (Vietnam Standards / Tieu chuan Viet Nam) and are still in use today. Such data are not read correctly in R (which doesn't seem to support these Vietnamese encodings). To correct this problem and make such data available in R, this package converts data in legacy Vietnamese encodings to the correct Unicode characters. The main function is `decodeVN`.
 
@@ -104,6 +101,12 @@ library(vietnamese2utf)
 
 # Example applications
 
+Disclaimer: Printing Unicode characters from R function output in package vignettes is difficult. Often R will print the Unicode escape characters (the code point) instead of the actual characters, e.g. <U+1EBF> instead of "ế".
+
+This is a limitation in vignettes. I'll try to circumvent it in this vignette as much as possible, e.g. by using DT::data.table() and by copy/pasting the correct console output below the output with Unicode characters. Even though it doesn't print nicely in this vignette, the converted data are correct (as you can see if you use data.table(), View(), or print vectors in the R console. 
+
+Run the code from this vignette in your R console to see the actual output, or try the examples in `?decodeVNN`
+
 ## Vectors
 
 Let's consider a simple vector with garbled characters: 
@@ -116,25 +119,16 @@ string_garbled
 It can be fixed using the `decodeVN` function:
 
 ```{r}
-decodeVN(string_garbled)
 tmp <- decodeVN(string_garbled)
 tmp
 ```
 
+In your R console, the Unicode characters will be printed correctly as:
 
-```{r}
-test <- decodeVN(string_garbled)
-# test
-# print(test)
-# summary(test)
-# utf8::utf8_print(test)
-test2 <- knitr::asis_output(test)
-test2
-knitr::asis_output(decodeVN(string_garbled))
-```
+    ## [1] "Quảng Trị"      "An Ðôn"         "Thừa Thiên Huế"
 
 
-By default, the output contains character with diacritics (accents). We can also get output without the diacritics (plain ASCII letters) by setting argument \"diacritics\ = FALSE":
+By default, the output contains character with diacritics (accents). We can also get output without the diacritics (plain ASCII letters) by setting argument `diacritics = FALSE`:
 
 ```{r}
 decodeVN(string_garbled, diacritics = FALSE)
@@ -148,18 +142,23 @@ For example, a string in VPS encoding is converted via:
 string_garbled_vps <- c("Quäng TrÎ",  "An ñôn", "ThØa Thiên Hu‰")
 decodeVN(string_garbled_vps, from = "VPS")
 ```
+Which in your R cosole will be 
 
+    ## [1] "Quảng Trị"      "An Ðôn"         "Thừa Thiên Huế"
 
-There is also an argument `to`, which by default is set to `to = \"Unicode\"`. If you want output that simulates data encoded in one of the supported Vietnamese encodings, set argument `to`, e.g.
+There is also an argument `to`, which by default is set to `to = "Unicode"`. If you want output that simulates data encoded in one of the supported Vietnamese encodings, set argument `to` accordingly, e.g.
 
 ```{r}
 string_tcvn_to_vps <- decodeVN(x = string_garbled, from = "TCVN3", to = "VPS")
 string_tcvn_to_vps
 ```
 This string is now garbled the VPS-way. It can still be converted to Unicode:
-```{r}
+```{r, }
 decodeVN(string_tcvn_to_vps, from = "VPS")
 ```
+which is: 
+
+    ## [1] "Quảng Trị"      "An Ðôn"         "Thừa Thiên Huế"
 
 
 ## Data frames
@@ -182,18 +181,21 @@ The first item $Unicode shows the correct characters.
 ```{r}
 head(vn_samples$Unicode)
 ```
-Note: when printing a data frame the Unicode characters are not displayed properly, which is a limitation of the print method for data frames in R. It shows correctly when printing the values inside the columns, meaning the data are correct:
 
-```{r}
+Note: when printing a data frame in the R colsole, the Unicode characters are not displayed properly, which is a limitation of the print method for data frames in R (it's the same issue as mentioned in the disclaimer above). The characters are correct though and show correctly when printing the columns as vectors:
+
+```{r include=FALSE}
 head(vn_samples$Unicode$Province_city)
 ```
-It also shows correctly when using `View` (not shown here, works in interactive sessions):
+    ## [1] "Bắc Giang" "Bắc Kạn"   "Cao Bằng"  "Hà Giang"  "Lạng Sơn"  "Phú Thọ"  
+
+It also shows correctly when using `View` (not shown here, it works in interactive sessions):
 
 ```{r eval = FALSE}
 View(vn_samples$Unicode)
 ```
 
-It is also shown correctly when using DT::datatable:
+It is also shown correctly when using `DT::datatable`:
 
 ```{r}
 DT::datatable(vn_samples$Unicode)
@@ -201,7 +203,7 @@ DT::datatable(vn_samples$Unicode)
 
 
 
-The other entries in `vn_samples` show garbled text. Here's the example in TCVN3 encoding:
+The other data frames in `vn_samples` show garbled text from several Vietnamese encodings. Here's the example in TCVN3 encoding:
 
 ```{r eval=FALSE, include=FALSE}
 DT::datatable(vn_samples$TCVN3)
@@ -258,7 +260,7 @@ DT::datatable(decodeVN(df_viscii, from = "VISCII", diacritics = FALSE))
 
 If you are working with spatial data, it is easiest to temporarily convert them to non-spatial data (a regular data frame), run decodeVN(), and make the object spatial again. 
 
-For `sf` objects, the workflow can be as follows (data are not included, code is for illustration only)
+For `sf` objects, the workflow can be as follows (data are not included, code is for illustration only, and converts from TCVN3 to Unicode).
 
 ```{r eval = FALSE}
 library(sf)
@@ -266,6 +268,6 @@ sf_object <- st_read(...)                      # load sf data set
 sf_object_geometry <- st_geometry(sf_object)   # temporarily store geometry column
 sf_drop_geometry(sf_object)                    # remove geometry column
 sf_object_decoded <- decodeVN(sf_object)       # run decodeVN
-st_set_geometry(decodeVN, sf_object_geometry)  # assign geometry column to decoded data frame (to make it spatial again)
+st_set_geometry(sf_object_decoded, sf_object_geometry)  # assign geometry column to decoded data frame (to make it spatial again)
+sf_object_decoded                                       # the sf object with decoded character columns
 ```
-
