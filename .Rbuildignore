@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^ignore$
 ^testing_stuff.R$
+^doc$
+^Meta$
