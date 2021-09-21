@@ -17,7 +17,7 @@ output:
   #   toc_depth: '2'
 vignette: >
   %\VignetteIndexEntry{Overview of the vietnameseConverter package} 
-  \VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
   %\VignetteEngine{knitr::rmarkdown} 
 ---
 
