@@ -47,6 +47,11 @@ if the conversion from Unicode to Vietnamese encodings would be relevant for you
 
 The character conversion table was adapted from \url{http://vietunicode.sourceforge.net/charset/}.
 }
+\section{Warning}{
+
+When printing a data frame with Unicode characters using the standard print method, the R console will show the Unicode escape characters (e.g. "<U+1EA3>") instead of the actual Unicode characters. This is a limitation of the R console. The data are correct and will show correctly when using e.g. View() or when printing columns as vectors.
+}
+
 \examples{
    # First we produce the wrongly formatted character string
    # using Unicode symbols is only necessary to create a portable example in the R package
@@ -73,5 +78,11 @@ The character conversion table was adapted from \url{http://vietunicode.sourcefo
    df_decode[,2]
 
    decodeVN(df, diacritics = FALSE)
+
+   # using the built-in sample data
+   data(vn_samples)
+   decodeVN(vn_samples$TCVN3)   # TCVN -> Unicode   # TCVN3 -> Unicode
+   decodeVN(vn_samples$TCVN3, diacritics = FALSE)   # TCVN3 -> Unicode (ASCII characters only)
+   decodeVN(vn_samples$VISCII, from = "VISCII")     # VISCII -> Unicode
 
 }

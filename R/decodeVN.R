@@ -28,8 +28,11 @@
 #'
 #' The character conversion table was adapted from \url{http://vietunicode.sourceforge.net/charset/}.
 #'
+#' @section Warning:
+#' When printing a data frame with Unicode characters using the standard print method, the R console will show the Unicode escape characters (e.g. "<U+1EA3>") instead of the actual Unicode characters. This is a limitation of the R console. The data are correct and will show correctly when using e.g. View() or when printing columns as vectors.
+#'
 #' @return character string or data frame (depending on x)
-
+#'
 #' @export
 #' @importFrom utf8 as_utf8
 #' @importFrom gsubfn gsubfn
@@ -61,6 +64,12 @@
 #'    df_decode[,2]
 #'
 #'    decodeVN(df, diacritics = FALSE)
+#'
+#'    # using the built-in sample data
+#'    data(vn_samples)
+#'    decodeVN(vn_samples$TCVN3)   # TCVN -> Unicode   # TCVN3 -> Unicode
+#'    decodeVN(vn_samples$TCVN3, diacritics = FALSE)   # TCVN3 -> Unicode (ASCII characters only)
+#'    decodeVN(vn_samples$VISCII, from = "VISCII")     # VISCII -> Unicode
 #'
 decodeVN <- function(x,
                      from = c("TCVN3", "VISCII", "VPS", "Unicode"),     #  "VNI",  "VNU",
