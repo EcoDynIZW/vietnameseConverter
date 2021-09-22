@@ -1,6 +1,6 @@
 Package: vietnameseConverter
 Type: Package
-Title: Convert Legacy Vietnamese Encodings To UTF-8
+Title: Convert Vietnamese Encodings
 Version: 0.3.0
 Authors@R: c(
         person("Juergen", "Niedballa", email = "niedballa@izw-berlin.de", role = c("aut", "cre"),
@@ -14,5 +14,6 @@ Encoding: UTF-8
 Imports: gsubfn, utf8
 Depends: R (>= 3.5.0)
 Suggests: testthat, rmarkdown, knitr, DT
+URL: https://github.com/jniedballa/vietnameseConverter
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
