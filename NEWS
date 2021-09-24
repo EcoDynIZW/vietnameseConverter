@@ -1,0 +1,8 @@
+vietnameseConverter 0.3.1
+
+- NAs are now handled correctly and don't cause errors
+- fixed errors in spatial section of vignette
+
+vietnameseConverter 0.3.0
+
+- Initial release
