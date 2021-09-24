@@ -77,10 +77,10 @@ DT::datatable(decodeVN(df_viscii, from = "VISCII", diacritics = FALSE))
 
 ## ----eval = FALSE-------------------------------------------------------------
 #  library(sf)
-#  sf_object <- st_read(...)                      # load sf data set
-#  sf_object_geometry <- st_geometry(sf_object)   # temporarily store geometry column
-#  sf_drop_geometry(sf_object)                    # remove geometry column
-#  sf_object_decoded <- decodeVN(sf_object)       # run decodeVN
-#  st_set_geometry(sf_object_decoded, sf_object_geometry)  # assign geometry column to decoded data frame (to make it spatial again)
-#  sf_object_decoded                                       # the sf object with decoded character columns
+#  sf_object <- st_read(...)                         # load sf data set
+#  sf_object_geometry <- st_geometry(sf_object)      # temporarily store geometry column
+#  sf_object_no_geom <- st_drop_geometry(sf_object)  # remove geometry column
+#  sf_object_decoded <- decodeVN(sf_object_no_geom)        # run decodeVN
+#  sf_object_decoded <- st_set_geometry(sf_object_decoded, sf_object_geometry)  # assign geometry column to decoded data frame (to make it spatial again)
+#  sf_object_decoded
 
