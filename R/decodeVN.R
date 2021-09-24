@@ -112,8 +112,13 @@ decodeVN <- function(x,
     if(length(char_cols) == 0) stop("No character columns in x")
     out <- x
     for(i in char_cols){
-      out[,i] <- as_utf8(out[,i])
-      out[,i] <- gsubfn(".", replacement = tmp, x = out[,i], perl = perl)
+      out[,i] <- as_utf8(x[,i])
+      which_na <- which(is.na(out[,i]))
+      if(length(which_na) >= 1){
+        out[-which_na,i] <- gsubfn(".", replacement = tmp, x = out[-which_na ,i], perl = perl)
+      } else {
+        out[,i] <- gsubfn(".", replacement = tmp, x = out[ ,i], perl = perl)
+      }
       #out[,i] <- as_utf8(out[,i])
     }
   }
@@ -122,14 +127,21 @@ decodeVN <- function(x,
 
     x <- as_utf8(x)
 
-
     # if(from == "VNI"){     # doesn't yet work for all characters
     #   x_tmp <- x
     #   for(i in 1:length(tmp))
     #     x_tmp <- gsubfn(pattern = names(tmp)[i], replacement = tmp[[i]], x = x_tmp, perl = T)
     # } else {
-      out <- gsubfn(".", replacement = tmp, x = x, perl = T)
+
     # }
+
+    which_na <- which(is.na(x))
+    if(length(which_na) >= 1){
+      out <- x
+      out[-which_na] <- gsubfn(".", replacement = tmp, x = x[-which_na], perl = T)
+    } else {
+      out <- gsubfn(".", replacement = tmp, x = x, perl = T)
+    }
 
 
     # if(length(tmp_split) == 2) {
