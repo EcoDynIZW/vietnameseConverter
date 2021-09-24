@@ -1,14 +1,14 @@
 Package: vietnameseConverter
 Type: Package
 Title: Convert Vietnamese Encodings
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
         person("Juergen", "Niedballa", email = "niedballa@izw-berlin.de", role = c("aut", "cre"),
                 comment = c(ORCID = "0000-0002-9187-2116")),
         person("An The Truong", "Nguyen", role = "ctb")
         )
 Maintainer: Juergen Niedballa <niedballa@izw-berlin.de>
-Description: Conversion of characters in various legacy Vietnamese text encodings to their correct Unicode characters. These Vietnamese encodings (TCVN3, VPS, VISCII) are not natively supported in R and lead to printing of wrong characters and garbled text (Mojibake). This package fixes that problem and provides output with or without diacritics. 
+Description: Conversion of characters from unsupported Vietnamese character encodings to Unicode characters. These Vietnamese encodings (TCVN3, VISCII, VPS) are not natively supported in R and lead to printing of wrong characters and garbled text (mojibake). This package fixes that problem and provides readable output with the correct Unicode characters (with or without diacritics). 
 License: GPL (>= 2)
 Encoding: UTF-8
 Imports: gsubfn, utf8
