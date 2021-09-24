@@ -35,6 +35,20 @@ test_that("it works on vectors", {
 })
 
 
+test_that("NAs are handled correctly", {
+
+  test <- vn_samples$TCVN3
+  test$Province_city[1] <- NA
+
+  expect_silent(test2 <- decodeVN(test))
+
+  test_uni_na <- vn_samples$Unicode
+  test_uni_na$Province_city[1] <- NA
+
+  expect_true(all.equal(test_uni_na, test2))
+})
+
+
 test_that("back and forth conversion works", {
   tmp_tcvn <- decodeVN(x = vn_samples$Unicode, from = "Unicode", to = "TCVN3", diacritics = T)
   tmp_tcvn2unicode <- decodeVN(x = tmp_tcvn)
@@ -48,3 +62,5 @@ test_that("back and forth conversion works", {
   tmp_vps2unicode <- decodeVN(x = tmp_vps, from = "VPS")
   expect_true(all.equal(tmp_vps2unicode, vn_samples$Unicode))
 })
+
+
