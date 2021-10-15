@@ -1,3 +1,8 @@
+vietnameseConverter 0.4.0
+
+- static pdf vignette to avoid problems with CRAN check
+- direct support for sf objects (spatial vector data)
+
 vietnameseConverter 0.3.1
 
 - NAs are now handled correctly and don't cause errors

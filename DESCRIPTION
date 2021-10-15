@@ -1,7 +1,7 @@
 Package: vietnameseConverter
 Type: Package
 Title: Convert Vietnamese Encodings
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: c(
         person("Juergen", "Niedballa", email = "niedballa@izw-berlin.de", role = c("aut", "cre"),
                 comment = c(ORCID = "0000-0002-9187-2116")),
@@ -11,9 +11,9 @@ Maintainer: Juergen Niedballa <niedballa@izw-berlin.de>
 Description: Conversion of characters from unsupported Vietnamese character encodings to Unicode characters. These Vietnamese encodings (TCVN3, VISCII, VPS) are not natively supported in R and lead to printing of wrong characters and garbled text (mojibake). This package fixes that problem and provides readable output with the correct Unicode characters (with or without diacritics). 
 License: GPL (>= 2)
 Encoding: UTF-8
-Imports: gsubfn, utf8
+Imports: gsubfn, methods, sf, utf8
 Depends: R (>= 3.5.0)
-Suggests: testthat, rmarkdown, knitr, DT
+Suggests: testthat, R.rsp, DT
 URL: https://github.com/jniedballa/vietnameseConverter
-VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+VignetteBuilder: R.rsp
+RoxygenNote: 7.1.2

@@ -3,4 +3,8 @@
 export(decodeVN)
 export(loadEncodingTableVN)
 importFrom(gsubfn,gsubfn)
+importFrom(methods,is)
+importFrom(sf,st_drop_geometry)
+importFrom(sf,st_geometry)
+importFrom(sf,st_set_geometry)
 importFrom(utf8,as_utf8)
