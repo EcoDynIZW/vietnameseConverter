@@ -34,8 +34,12 @@
 #' @return character string or data frame (depending on x)
 #'
 #' @export
+#' @importFrom methods is
 #' @importFrom utf8 as_utf8
 #' @importFrom gsubfn gsubfn
+#' @importFrom sf st_geometry
+#' @importFrom sf st_drop_geometry
+#' @importFrom sf st_set_geometry
 #'
 #'
 #' @examples
@@ -78,7 +82,17 @@ decodeVN <- function(x,
                      ) {
 
 
-  if(inherits(x, "data.frame")) x <- as.data.frame(x)    # for tibbles etc
+  # if spatial objects, temporarily store spatial information
+  if(is(x, "sf")) {
+    spatial <- TRUE
+    x_geometry <- st_geometry(x)  # temporarily store geometry column
+    x          <- st_drop_geometry(x)      # remove geometry column
+  } else {
+    spatial <- FALSE
+  }
+
+  if(inherits(x, "data.frame")) x <- as.data.frame(x)    # for tibbles, sf, data.table
+
   if(!class(x) %in% c("data.frame", "character")) stop("x must be a character vector or data.frame")
   enc_table <- loadEncodingTableVN(version = 2)
 
@@ -97,14 +111,6 @@ decodeVN <- function(x,
   }
   names(tmp) <- enc_table[, from]
 
-  #tmp_split <- split(tmp, nchar(names(tmp)))
-
-
-  #tmp <- tmp[which(tmp != names(tmp))]
-
-  #names(tmp) <- sapply(enc_table[, from], FUN = function(x) as.character(Unicode::as.u_char(utf8ToInt(x))))
-  #names(tmp) <- gsub("U+", "\u", names(tmp) )
-  #paste0("[\u", as.hexmode(sapply(enc_table[, from], utf8ToInt)), "]")
 
   if(is.data.frame(x)) {
     char_cols <- which(sapply(x, typeof) %in% "character")
@@ -119,7 +125,10 @@ decodeVN <- function(x,
       } else {
         out[,i] <- gsubfn(".", replacement = tmp, x = out[ ,i], perl = perl)
       }
-      #out[,i] <- as_utf8(out[,i])
+    }
+
+    if(spatial) {
+      out <- st_set_geometry(out, x_geometry) # assign geometry column again
     }
   }
 
@@ -142,15 +151,6 @@ decodeVN <- function(x,
     } else {
       out <- gsubfn(".", replacement = tmp, x = x, perl = T)
     }
-
-
-    # if(length(tmp_split) == 2) {
-    #   out <- gsubfn::gsubfn(".*", replacement = tmp_split[[2]], x = x, fixed = F)
-    # }
-    # out <- as_utf8(out)
-  #  cbind(x, out)[out != x,]
-    #out <- gsubfn::gsubfn(".", replacement = tmp_split[[2]], x = out, fixed = F)
-
   }
 
   return(out)
