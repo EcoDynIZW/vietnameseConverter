@@ -12,13 +12,13 @@ decodeVN(
 )
 }
 \arguments{
-\item{x}{data.frame or character vector}
+\item{x}{data.frame, sf object, or character vector}
 
 \item{from}{Text encoding of input x}
 
 \item{to}{Text encoding of output}
 
-\item{diacritics}{logical. Preserve diacritics (TRUE) or not (FALSE)}
+\item{diacritics}{logical. Preserve diacritics (TRUE) or not (FALSE)?}
 }
 \value{
 character string or data frame (depending on x)
@@ -29,20 +29,22 @@ Convert characters from legacy Vietnamese encodings to UTF-8 encoding
 \details{
 Many characters in legacy Vietnamese encodings (e.g. TCVN3, VPS, VISCII)
 are not read correctly in R, particularly those with diacritics (accents). The particular
-encodings don't seem to be supported by R, at least on many locales. Reading them as if they have UTF-8
-encoding results in wrong characters being printed and garbled text (Mojibake).
+encodings don't seem to be supported by R, at least on many locales. When R reads them as if they have UTF-8
+encoding, it will result in wrong characters being printed and garbled text (Mojibake - see vignette and examples below).
 
 This functions converts character vectors to from various Vietnamese legacy encodings to readable
-Unicode characters in UTF-8 encoding. By default the function attempts the conversion from TCVN3 to UTF-8
+Unicode characters in UTF-8 encoding. By default the function attempts the conversion from TCVN3 to Unicode
 while preserving the diacritics, but also supports other Vietnamese encodings  (TCVN3, VPS, VISCII - via argument \code{from}).
 Currently VNI and VNU are not supported.
+
+It works on data frames, spatial objects (from the sf package), and character vectors.
 
  \code{diacritics = TRUE} will return characters with their diacritics. With \code{diacritics = FALSE},
  the output will be ASCII letters without diacritics. Upper/lower case will be preserved regardless.
 
-The internal search and replace is performed by the \code{\link[gsubfn]{gsubfn}} function from the \pkg{gsubfn} package. It performs a simple character replacements to fix the text.
+The internal search and replace is performed by the \code{\link[gsubfn]{gsubfn}} function from the \pkg{gsubfn} package. It performs simple character replacements to fix the text.
 
-Currently the function converts from the Vietnamese encodings to UTF-8, not vice versa. Please contact the maintainer
+Currently the function converts from the Vietnamese encodings to Unicode, not vice versa. Please contact the maintainer
 if the conversion from Unicode to Vietnamese encodings would be relevant for you.
 
 The character conversion table was adapted from \url{http://vietunicode.sourceforge.net/charset/}.
@@ -84,5 +86,20 @@ When printing a data frame with Unicode characters using the standard print meth
    decodeVN(vn_samples$TCVN3)   # TCVN -> Unicode   # TCVN3 -> Unicode
    decodeVN(vn_samples$TCVN3, diacritics = FALSE)   # TCVN3 -> Unicode (ASCII characters only)
    decodeVN(vn_samples$VISCII, from = "VISCII")     # VISCII -> Unicode
+
+
+   # Demonstration for sf object
+
+   # create sf object (just for demonstration)
+   require(sf)
+   df_geom <- st_sfc(st_point(c(3,4)), st_point(c(10,11)), st_point(c(15,13)))
+   df_spatial <- st_set_geometry(df, df_geom)
+
+   # convert Vietnamese characters
+   df_spatial_decode <- decodeVN(df_spatial)
+
+   df_spatial_decode
+   df_spatial_decode$name
+
 
 }
